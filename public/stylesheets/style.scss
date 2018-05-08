@@ -1,0 +1,27 @@
+body {
+	margin: 0;
+}
+
+.wrap {
+	// background-color: blue;
+	width: 100%;
+	padding-top: 56.25%;
+	position: relative;
+}
+svg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	// background-color: red;
+	width: 75%;
+	height: 100%;
+}
+
+aside {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 25%;
+	height: 100%;
+	background-color: yellow;
+}
