@@ -1,5 +1,30 @@
 const ws = require('ws').Server;
 
+const soonFromLiveData = {
+	date: '',
+	amountFeeded: 0,
+	reactionToFeeding: 0,
+	harvestedFish: 0,
+	harvestedGreens: 0,
+	deadFish: 0,
+	NH4: 0,
+	NO2: 0,
+	NO3: 0,
+	ph: 7,
+	iron: 0,
+	PO4: 0,
+	K: 0,
+	CA: 0,
+	waterTemp: 0,
+	powerStatus: 0,
+	waterAdded: 0
+};
+
+const soonFromHistoryData = {
+	totalHarvestedFish: 0,
+	totalHarvestedGreens: 0
+}
+
 const Setup = (server) => {
 	const wss = new ws({server});
 	wss.on('connection', (ws, req) => {

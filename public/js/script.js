@@ -4,6 +4,8 @@
 		console.log('loaded');
 		// console.log(TimelineMax({}));
 		LoadElements();
+		AnimateLeaves();
+		GiveLifeToFish();
 		Socket();
 		console.log(svg);
 	});
@@ -21,7 +23,54 @@
 			};
 			svg.pots[i] = newPot;
 		});
+		svg.fish = document.querySelectorAll('#Fish')
 		
+	}
+
+	function AnimateLeaves() {
+		svg.pots.forEach(function(pot) {
+			pot.leaves.forEach(function(leaf, i) {
+				const tl = new TimelineMax({
+					repeat: -1,
+					yoyo: true
+				});
+				let transformOrigin = '100% 100%'
+				if (i == 0 || i == 1) {
+					transformOrigin = '0 100%';
+				}
+				tl.fromTo(leaf, Math.random()*2+1, {
+					ease: Power0.easeOut,
+					transformOrigin: transformOrigin,
+					rotation: -Math.random() * 7
+				}, {
+					ease: Power0.easeOut,
+					transformOrigin: transformOrigin,
+					rotation: Math.random() * 7
+				});
+			});
+		});
+	}
+
+	function GiveLifeToFish() {
+		svg.fish.forEach(function(fish) {
+			console.log(fish);
+			MoveFish(fish);
+		});
+	}
+
+	function MoveFish(fish) {
+		const timeout = 2;
+		const tl = new TimelineMax({
+
+		});
+		tl.to(fish, timeout, {x: 600, y: -250});
+		setTimeout(function() {
+			DoneMove(fish);
+		}, timeout * 1000);
+	}
+
+	function DoneMove(a, b, c) {
+		console.log(a, b, c);
 	}
 
 	let ws;
