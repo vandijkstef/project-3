@@ -1,5 +1,9 @@
 body {
-  margin: 0; }
+  margin: 0;
+  font-family: sans-serif; }
+
+.hidden {
+  display: none; }
 
 .wrap {
   width: 100%;
@@ -19,6 +23,12 @@ aside {
   right: 0;
   width: 25%;
   height: 100%;
-  background-color: yellow; }
+  max-height: 100%; }
+  aside section.meta {
+    text-align: center; }
+  aside div {
+    max-height: 33%; }
+  aside img {
+    max-height: 7.5em; }
 
 /*# sourceMappingURL=style.css.map */

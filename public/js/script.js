@@ -1,30 +1,66 @@
 {
 	const svg = {};
+	const side = {};
 	document.addEventListener('DOMContentLoaded', function() {
-		console.log('loaded');
-		// console.log(TimelineMax({}));
 		LoadElements();
+
+		SetHoverInfo();
+
 		AnimateLeaves();
 		GiveLifeToFish();
+		GrowFarm(.8);
+		LetItRain();
+
+		SetInfoSide(false);
+
 		Socket();
-		console.log(svg);
 	});
 
 	function LoadElements() {
+		// SVG
 		svg.fishtank = document.querySelector('#fishbucket');
 		svg.sidetank = document.querySelector('#otherbucket');
+		svg.farm = document.querySelector('#farm');
 		svg.farmpots = document.querySelectorAll('#pot, [data-name=pot]');
 		svg.pots = [];
 		svg.farmpots.forEach(function(pot, i) {
 			const newPot = {
 				group: pot,
-				leaveGroup: '', // TODO: put leaves in group
+				leaveGroup: pot.querySelector('#leaves, [data-name=leaves]'), // TODO: put leaves in group
 				leaves: pot.querySelectorAll('#leave, [data-name=leave]')
 			};
 			svg.pots[i] = newPot;
 		});
-		svg.fish = document.querySelectorAll('#Fish')
+		svg.fish = document.querySelectorAll('#Fish, [data-name=Fish]');
+		svg.rain = document.querySelectorAll('#rain rect');
 		
+		// Side
+		side.meta = document.querySelector('.meta');
+		side.info = document.querySelector('.info');
+	}
+
+	function SetHoverInfo() {
+		svg.fishtank.addEventListener('mouseover', function() {
+			SetInfoSide(true, `
+			<h2>Vissentank</h2>
+			<p>Dit is de tank met vissen. We voeren ze iedere dag. Via hun uitwerpselen produceren deze vissen ammoniak.</p>
+			`);
+		}, false);
+		svg.fishtank.addEventListener('mouseleave', SetMeta);
+		svg.sidetank.addEventListener('mouseover', function() {
+			SetInfoSide(true, `
+			<h2>Biotank</h2>
+			<p>In deze tank wordt de ammoniak door bacterien omgezet naar nitraat. Het water met de nitraten wordt vervolgens naar boven gepompt en dient als voeding voor de planten.</p>
+			`);
+		}, false);
+		svg.sidetank.addEventListener('mouseleave', SetMeta);
+		svg.farm.addEventListener('mouseover', function() {
+			SetInfoSide(true, `
+			<h2>Kas</h2>
+			<p>Hier groeit het voedsel. Het overtollige water vloeit weer terug in de vissentank.</p>
+			`);
+		}, false);
+		svg.farm.addEventListener('mouseleave', SetMeta);
 	}
 
 	function AnimateLeaves() {
@@ -34,7 +70,7 @@
 					repeat: -1,
 					yoyo: true
 				});
-				let transformOrigin = '100% 100%'
+				let transformOrigin = '100% 100%';
 				if (i == 0 || i == 1) {
 					transformOrigin = '0 100%';
 				}
@@ -59,18 +95,78 @@
 	}
 
 	function MoveFish(fish) {
-		const timeout = 2;
+		let timeout = 2;
+		const xPos = Math.random()*600;
+		const yPos = Math.random()*250*-1;
 		const tl = new TimelineMax({
 
 		});
-		tl.to(fish, timeout, {x: 600, y: -250});
+		CSSPlugin.useSVGTransformAttr = false;
+		const moveData = {
+			x: xPos,
+			y: yPos,
+			ease: Power2.easeOut
+		};
+		if (fish._gsTransform) {
+			const curX = fish._gsTransform.x;
+			const curY = fish._gsTransform.y;
+			let movementX = (curX - xPos) * -1;
+			let rotationY;
+			if (movementX < 0) {
+				rotationY = -180;
+			} else {
+				rotationY = 0;
+			}
+			tl.to(fish, .4, {rotationY: rotationY, transformOrigin: '50% 50%'});
+			movementX = Math.abs(movementX);
+			const movementY = Math.abs((curY - yPos) * -1);
+			const movement = movementX + movementY;
+			timeout = movement / 100;
+		}
+		tl.to(fish, timeout, moveData, '-=.4');
 		setTimeout(function() {
-			DoneMove(fish);
-		}, timeout * 1000);
+			MoveFish(fish);
+		}, (timeout + Math.random() + .5) * 1000);
 	}
 
-	function DoneMove(a, b, c) {
-		console.log(a, b, c);
+	// Grow the farm, based on a value of 0-1 (up to 2 should be possible, overgrowth alert)
+	function GrowFarm(value) {
+		svg.pots.forEach(function(pot) {
+			if (pot.leaveGroup) {
+				console.log(pot);
+				const tl = new TimelineMax({
+					
+				});
+				tl.to(pot.leaveGroup, 2, {scale: value, transformOrigin: '50% 100%'});
+			}
+		});
+	}
+
+	function LetItRain() {
+		svg.rain.forEach(function(drop) {
+			const tl = new TimelineMax({
+				repeat: -1,
+				delay: Math.random(),
+				repeatDelay: Math.random()
+			});
+			console.log(drop);
+			tl.to(drop, 1, {y: 500, ease: Power1.easeIn, opacity: 0});
+		});
+	}
+
+	function SetMeta() {
+		SetInfoSide(false);
+	}
+
+	function SetInfoSide(info, content = '') {
+		if (info) {
+			side.info.classList.remove('hidden');
+			side.meta.classList.add('hidden');
+			side.info.innerHTML = content;
+		} else {
+			side.info.classList.add('hidden');
+			side.meta.classList.remove('hidden');
+		}
 	}
 
 	let ws;

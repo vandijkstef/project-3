@@ -4,7 +4,7 @@ This repository contains the project created for De Ceuvel. It is a (live) repre
 
 ## Getting started
 ### Prerequisites
-This project assumes you are familiar with NodeJS (`9.11.1`) and NPM (`5.6.0`), and have those installed. Also, MongoDB (`3.6.4`) is assumed to be installed. Client side you would need a browser that supports `WebSocket`.
+This project assumes you are familiar with NodeJS (`9.11.1`) and NPM (`5.6.0`), and have those installed. Client side you would need a browser that supports `WebSocket`.
 
 ### Code style
 All JS should conform to the eslint config thats included. Please make sure ESlint is functional in your code editor and the supplied config is being used.
@@ -41,3 +41,25 @@ npm run watch
 
 ## Acknowledgments
 * ☕️️️️
+
+
+<!-- 
+TODO:
+Illustrator:
+	- Make it rain
+	- Export icons
+		- Put in sidebar
+
+Animation:
+	- Fish feeding
+	- Make it rain
+
+Hook up with live data:
+	- Fish count
+	- Fish repsonse on feeding
+	- Farm growth
+	- Feeding trigger
+	- Harvested from other API
+
+
+ -->
