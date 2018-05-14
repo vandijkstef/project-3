@@ -9,7 +9,7 @@
 		AnimateLeaves();
 		GiveLifeToFish();
 		GrowFarm(.8);
-		LetItRain();
+		SetRain();
 
 		SetInfoSide(false);
 
@@ -66,7 +66,7 @@
 	function AnimateLeaves() {
 		svg.pots.forEach(function(pot) {
 			pot.leaves.forEach(function(leaf, i) {
-				const tl = new TimelineMax({
+				leaf.tlAnim = new TimelineMax({
 					repeat: -1,
 					yoyo: true
 				});
@@ -74,7 +74,7 @@
 				if (i == 0 || i == 1) {
 					transformOrigin = '0 100%';
 				}
-				tl.fromTo(leaf, Math.random()*2+1, {
+				leaf.tlAnim.fromTo(leaf, Math.random()*2+1, {
 					ease: Power0.easeOut,
 					transformOrigin: transformOrigin,
 					rotation: -Math.random() * 7
@@ -133,24 +133,28 @@
 	function GrowFarm(value) {
 		svg.pots.forEach(function(pot) {
 			if (pot.leaveGroup) {
-				console.log(pot);
-				const tl = new TimelineMax({
+				pot.tlGrow = new TimelineMax({
 					
 				});
-				tl.to(pot.leaveGroup, 2, {scale: value, transformOrigin: '50% 100%'});
+				pot.tlGrow.to(pot.leaveGroup, 2, {scale: value, transformOrigin: '50% 100%'});
 			}
 		});
 	}
 
-	function LetItRain() {
+	function SetRain() {
 		svg.rain.forEach(function(drop) {
-			const tl = new TimelineMax({
+			drop.tlRain = new TimelineMax({
 				repeat: -1,
 				delay: Math.random(),
 				repeatDelay: Math.random()
 			});
-			console.log(drop);
-			tl.to(drop, 1, {y: 500, ease: Power1.easeIn, opacity: 0});
+			drop.tlRain.to(drop, 1, {y: 500, ease: Power1.easeIn, opacity: 0});
+		});
+	}
+
+	function PauseRain() {
+		svg.rain.forEach(function(drop) {
+			drop.tlRain.pause();
 		});
 	}
 
@@ -216,19 +220,6 @@
 				action: 'HI'
 			};
 			return JSON.stringify(hi);
-		},
-		register: (element) => {
-			const value = element.querySelector('select[name=name]').value;
-			return `REGISTER;ELEMENT:${value};`;
-		},
-		message: (form) => {
-			const msg = {
-				action: 'MESSAGE',
-				text: form.querySelector('input[name=message]').value,
-				sendBy: form.querySelector('input[name=you]').value,
-				for: form.querySelector('input[name=other]').value
-			};
-			return JSON.stringify(msg);
 		}
 	};
 	
