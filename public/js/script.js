@@ -1,13 +1,19 @@
 {
+	const states = {
+		pump: true,
+		feed: false
+	};
 	const svg = {};
 	const side = {};
 	document.addEventListener('DOMContentLoaded', function() {
+		CSSPlugin.useSVGTransformAttr = false;
+
 		LoadElements();
 
 		SetHoverInfo();
 
 		AnimateLeaves();
-		GiveLifeToFish();
+		GiveLifeToFish(10);
 		GrowFarm(.8);
 		SetRain();
 
@@ -33,6 +39,8 @@
 		});
 		svg.fish = document.querySelectorAll('#Fish, [data-name=Fish]');
 		svg.rain = document.querySelectorAll('#rain rect');
+		svg.pump = document.querySelector('#pump');
+		svg.pumpLight = document.querySelector('#pump circle:last-of-type');
 		
 		// Side
 		side.meta = document.querySelector('.meta');
@@ -75,11 +83,11 @@
 					transformOrigin = '0 100%';
 				}
 				leaf.tlAnim.fromTo(leaf, Math.random()*2+1, {
-					ease: Power0.easeOut,
+					// ease: Power0.easeOut,
 					transformOrigin: transformOrigin,
 					rotation: -Math.random() * 7
 				}, {
-					ease: Power0.easeOut,
+					// ease: Power0.easeOut,
 					transformOrigin: transformOrigin,
 					rotation: Math.random() * 7
 				});
@@ -87,25 +95,30 @@
 		});
 	}
 
-	function GiveLifeToFish() {
-		svg.fish.forEach(function(fish) {
-			console.log(fish);
-			MoveFish(fish);
+	function GiveLifeToFish(amount) {
+		svg.fish.forEach(function(fish, i) {
+			if (i < amount) {
+				MoveFish(fish);
+			} else {
+				fish.style.display = 'none';
+			}
 		});
 	}
 
 	function MoveFish(fish) {
 		let timeout = 2;
 		const xPos = Math.random()*600;
-		const yPos = Math.random()*250*-1;
-		const tl = new TimelineMax({
+		let yPos = Math.random()*250*-1;
+		if (states.feed) {
+			yPos = -300 + Math.random() * 50;
+		}
+		fish.tlMove = new TimelineMax({
 
 		});
-		CSSPlugin.useSVGTransformAttr = false;
 		const moveData = {
 			x: xPos,
 			y: yPos,
-			ease: Power2.easeOut
+			// ease: Power2.easeOut // This proves to be too intensive
 		};
 		if (fish._gsTransform) {
 			const curX = fish._gsTransform.x;
@@ -117,13 +130,15 @@
 			} else {
 				rotationY = 0;
 			}
-			tl.to(fish, .4, {rotationY: rotationY, transformOrigin: '50% 50%'});
+			fish.tlMove.to(fish, .4, {rotationY: rotationY, transformOrigin: '50% 50%'});
 			movementX = Math.abs(movementX);
 			const movementY = Math.abs((curY - yPos) * -1);
 			const movement = movementX + movementY;
 			timeout = movement / 100;
+			fish.tlMove.to(fish, timeout, moveData, '-=.4');
+		} else {
+			fish.tlMove.to(fish, timeout, moveData);
 		}
-		tl.to(fish, timeout, moveData, '-=.4');
 		setTimeout(function() {
 			MoveFish(fish);
 		}, (timeout + Math.random() + .5) * 1000);
@@ -146,16 +161,25 @@
 			drop.tlRain = new TimelineMax({
 				repeat: -1,
 				delay: Math.random(),
-				repeatDelay: Math.random()
+				repeatDelay: Math.random(),
+				// onCompleteParams: ['{self}'],
+				// onComplete: shouldIRain
 			});
-			drop.tlRain.to(drop, 1, {y: 500, ease: Power1.easeIn, opacity: 0});
+			drop.tlRain.to(drop, 1, {
+				y: 500,
+				// ease: Power1.easeIn,
+				opacity: 0
+			});
 		});
+		svg.pumpLight.style.fill = '#00FF00';
 	}
 
-	function PauseRain() {
-		svg.rain.forEach(function(drop) {
-			drop.tlRain.pause();
-		});
+	function shouldIRain(tl) {
+		if (states.pump) {
+			tl.play(0);
+		} else {
+			svg.pumpLight.style.fill = '#000000';
+		}
 	}
 
 	function SetMeta() {
@@ -198,6 +222,19 @@
 				if (data.action === 'MESSAGE') {
 					// HandleIncomingMessage(data);
 					console.log('message');
+				} else if (data.action === 'FEED') {
+					states.feed = true;
+					setTimeout(() => {
+						states.feed = false;
+					}, 10000);
+				} else if (data.action === 'PUMP') {
+					states.pump = !states.pump;
+					if (states.pump) {
+						// SetRain();
+						svg.rain.forEach(function(drop) {
+							shouldIRain(drop.tlRain);
+						});
+					}
 				} else {
 					// UpdateUI(data);
 					console.log('smth funky here');
@@ -207,6 +244,9 @@
 		ws.onclose = () => {
 			console.log('Socket connection closed, retrying');
 			// UIOffline();
+			setTimeout(() => {
+				Socket();
+			}, 5000);
 		};
 		ws.onerror = () => {
 			console.log('Woops, we got a Socket error.');

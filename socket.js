@@ -1,3 +1,32 @@
+// ☕️️️️ for Alex!
+// const amqp  = require('amqplib');
+// amqp.connect('amqp://consumer:zHJR6WPpgUDLt5cF@rabbit.spectral.energy/')
+// 	.then(function(conn) {
+// 		process.once('SIGINT', function() {
+// 			conn.close();
+// 		});
+// 		return conn.createChannel().then(function(channel) {
+// 			channel.assertExchange('aquaponics', 'topic', { durable: true })
+// 				.then(() => {
+// 					let queue = channel.assertQueue('', { exclusive: true });
+// 					queue = queue.then((_queue) => {
+// 						channel.bindQueue(_queue.queue, 'aquaponics', 'deceuvel');
+// 						console.log(_queue);
+// 						return channel.consume(
+// 							_queue.queue,
+// 							(msg) => {
+// 								console.log('[x] Received \'%s\'', msg.content.toString());
+// 							},
+// 							{ noAck: true }
+// 						);
+// 					});
+// 					return queue.then(() => {
+// 						console.log(' [*] Waiting for messages. To exit press CTRL+C');
+// 					});
+// 				});
+// 		});
+// 	});
+
 const ws = require('ws').Server;
 
 const soonFromLiveData = {
@@ -23,7 +52,7 @@ const soonFromLiveData = {
 const soonFromHistoryData = {
 	totalHarvestedFish: 0,
 	totalHarvestedGreens: 0
-}
+};
 
 const Setup = (server) => {
 	const wss = new ws({server});
@@ -33,7 +62,7 @@ const Setup = (server) => {
 			const msgData = JSON.parse(message);
 			switch (msgData.action) {
 			case 'HI':
-			console.log('eehrm, hi?');
+				console.log('eehrm, hi?');
 				// Say hello to the client, be nice
 				if (msgData.error) {
 					// But don't make the client wiser than it should be
@@ -47,6 +76,15 @@ const Setup = (server) => {
 				}
 				// And broadcast that global data to all clients
 				// WSbroadcast(JSON.stringify(wsData), ws, wss);
+				break;
+			case 'CONTROL':
+				console.log('controller connected');
+				ws.send(JSON.stringify({message: 'Hello controller'}));
+				break;
+			case 'FEED':
+			case 'PUMP':
+				console.log('feed command received');
+				WSbroadcast(JSON.stringify({action: msgData.action}), ws, wss);
 				break;
 			default:
 				ws.send('Not implemented');
