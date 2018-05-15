@@ -1,6 +1,7 @@
 body {
 	margin: 0;
 	font-family: sans-serif;
+	background-color: rgb(197, 239, 247);
 }
 
 .hidden {
@@ -16,8 +17,9 @@ svg {
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 75%;
+	width: 77%;
 	height: 100%;
+	margin-left: -1.2rem;
 }
 
 aside {
@@ -30,12 +32,20 @@ aside {
 	section {
 		&.meta {
 			text-align: center;
+			height: 100vh;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
 		}
 	}
 	div	{
-		max-height: 33%;
+		height: 33vh;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 	}
 	img {
-		max-height: 7.5em;
+		max-width: 7.5em;
+		margin: 0 auto;
 	}
 }

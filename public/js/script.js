@@ -10,7 +10,7 @@
 
 		LoadElements();
 
-		SetHoverInfo();
+		// SetHoverInfo();
 
 		AnimateLeaves();
 		GiveLifeToFish(10);
@@ -24,6 +24,8 @@
 
 	function LoadElements() {
 		// SVG
+		svg.svg = document.querySelector('svg');
+		svg.svg.querySelector('title').innerHTML = '';
 		svg.fishtank = document.querySelector('#fishbucket');
 		svg.sidetank = document.querySelector('#otherbucket');
 		svg.farm = document.querySelector('#farm');
@@ -159,14 +161,14 @@
 	function SetRain() {
 		svg.rain.forEach(function(drop) {
 			drop.tlRain = new TimelineMax({
-				repeat: -1,
+				// repeat: -1,
 				delay: Math.random(),
 				repeatDelay: Math.random(),
-				// onCompleteParams: ['{self}'],
-				// onComplete: shouldIRain
+				onCompleteParams: ['{self}'],
+				onComplete: shouldIRain
 			});
 			drop.tlRain.to(drop, 1, {
-				y: 500,
+				y: 450,
 				// ease: Power1.easeIn,
 				opacity: 0
 			});
@@ -195,6 +197,11 @@
 			side.info.classList.add('hidden');
 			side.meta.classList.remove('hidden');
 		}
+	}
+
+	function SetLight(value) {
+		const light = (value / 20000) / 2 + .6;
+		svg.svg.style.filter = `brightness(${light})`;
 	}
 
 	let ws;
@@ -235,7 +242,11 @@
 							shouldIRain(drop.tlRain);
 						});
 					}
-				} else {
+				} else if (data.action === 'LIGHT') {
+					SetLight(data.value);
+				} else if (data.data) {
+					SetLight(data.data.live.light);
+				}else {
 					// UpdateUI(data);
 					console.log('smth funky here');
 				}
